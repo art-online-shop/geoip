@@ -1,0 +1,41 @@
+<?php
+// Пример работы с классом SxGeo v2.2
+header('Content-type: text/plain; charset=utf8');
+
+// Подключаем SxGeo.php класс
+include("SxGeo.php");
+// Создаем объект
+// Первый параметр - имя файла с базой (используется оригинальная бинарная база SxGeo.dat)
+// Второй параметр - режим работы: 
+//     SXGEO_FILE   (работа с файлом базы, режим по умолчанию); 
+//     SXGEO_BATCH (пакетная обработка, увеличивает скорость при обработке множества IP за раз)
+//     SXGEO_MEMORY (кэширование БД в памяти, еще увеличивает скорость пакетной обработки, но требует больше памяти)
+$SxGeo = new SxGeo('SxGeoCity.dat');
+//$SxGeo = new SxGeo('SxGeoCity.dat', SXGEO_BATCH | SXGEO_MEMORY); // Самый производительный режим, если нужно обработать много IP за раз
+
+$ip = $_SERVER['REMOTE_ADDR']; // Вся информация о городе
+VAR_EXPORT($SxGeo->get($ip)['city']['name_ru']);
+VAR_EXPORT($SxGeo->get($ip)['country']['iso']);
+$iso=$SxGeo->get($ip)['country']['iso']  ; // Краткая информация о городе или код страны (если используется база SxGeo Country)        // Информация о базе данных
+/*Подключение к базе данных на сервере*/
+$host="localhost";/*Имя сервера*/
+$user="#";/*Имя пользователя*/
+$password="#";/*Пароль пользователя*/
+$name="#";
+/*Имя базы данных*/
+$query = "create table flags (id int(2) primary key
+auto_increment, iso varchar(3),town varchar(30))";
+$query_result = mysql_query($query, $link);
+if (false === $query_result)
+   die ('Error database SQL query< br>');
+// Закрываем соединение
+$close_result = mysql_close($link);
+if (false === $close_result)
+   die ('Error database close< br>');
+$path="images/".$iso.'.png';
+$a="<img src='image/RU.png'>";
+echo "<div>".$a."</div>"; 
+$fd = fopen("hello.txt", 'w') or die("не удалось создать файл");
+fwrite($fd, $iso);
+fclose($fd);
+?>
